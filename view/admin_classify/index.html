@@ -1,0 +1,145 @@
+<extend name="common/frame" />
+
+<!-- 区块-标题 -->
+<block name="title">
+	分类管理
+</block>
+
+<!-- 区块-样式 -->
+<block name="style">
+
+</block>
+
+<!-- 区块-内容 -->
+<block name="content">
+	<table class="table table-bordered table-hover">
+		<colgroup>
+			<col width="10%">
+			<col width="10%">
+			<col width="10%">
+			<col width="20%">
+			<col width="20%">
+			<col width="30%">
+		</colgroup>
+		<thead>
+			<th><input type="checkbox" onclick="selectAll(this)"></th>
+			<th>分类排序</th>
+			<th>分类编号</th>
+			<th class="text-left">分类名称</th>
+			<th>分类状态</th>
+			<th><button class="btn btn-success" type="button" onclick="add(0)">添加</button></th>
+		</thead>
+		<tbody>
+			<script type="text/javascript">
+				/* 初始化分类 */
+				let datas = {$datas | json_encode};
+
+				function initDatas(datas, text) {
+					$.each(datas, function(index, data) {
+						text +=
+							`
+							<tr>
+								<td><input type="checkbox" name="id" value="${data.id}"></td>
+								<td><input type="text" class="form-control text-center" value="${data.sort}" onchange="executeSort(this, ${data.id}, '{:cmf_plugin_url('Shop://admin_classify/executeSort')}')"></td>
+								<td>${data.id}</td>
+								<td class="text-left">${data.prefix}${data.name}</td>
+								<td>
+								`
+						switch (parseInt(data.status)) {
+							case 1:
+								text +=
+									`<button class="btn btn-warning" type="button" onclick="executeStatus(2, ${data.id}, '{:cmf_plugin_url('Shop://admin_classify/executeStatus')}', '确认禁用?')">禁用</button>`
+								break;
+							case 2:
+								text +=
+									`<button class="btn btn-success" type="button" onclick="executeStatus(1, ${data.id}, '{:cmf_plugin_url('Shop://admin_classify/executeStatus')}', '确认启用?')">启用</button>`
+								break;
+						}
+						text +=
+							`
+								</td>
+								<td>
+									<button class="btn btn-default" type="button" onclick="add(${data.id})">添加子分类</button>
+									<button class="btn btn-primary" type="button" onclick="edit(${data.id})">修改</button>
+									<button class="btn btn-danger" type="button" onclick="executeDestroy(${data.id}, '{:cmf_plugin_url('Shop://admin_classify/executeDestroy')}', '确认删除?')">删除</button>
+								</td>
+							</tr>
+							`
+						if (data.hasClassifys) {
+							text = initDatas(data.classifys, text)
+						}
+					})
+					return text
+				}
+
+				$("tbody").html(initDatas(datas, ""))
+			</script>
+		</tbody>
+	</table>
+	<button class="btn btn-danger" type="button" onclick="deleteAll('{:cmf_plugin_url('Shop://admin_classify/deleteAll')}', '确认删除选中?')">删除选中</button>
+</block>
+
+<!-- 区块-脚本 -->
+<block name="script">
+	<script type="text/javascript">
+		function add(id) {
+			let title = "添加"
+			let content = `{:cmf_plugin_url('Shop://admin_classify/add')}?id=${id}`
+			iframe(title, content, function(index, layero) {
+				let form = layer.getChildFrame("form", index)
+				let iframeWin = window[layero.find('iframe')[0]['name']]
+				let params = {
+					submit: true,
+					params: {
+						name: form.find("[name='name']").val(),
+						classify_id: form.find("[name='classify_id']").val()
+					}
+				}
+				if (isEmptyData(params.params.name)) {
+					message("分类名称为空", 2)
+					return false
+				}
+				layer.load(2)
+				$.post(content, params, function(data) {
+					if (data == true) {
+						layer.closeAll("loading")
+						layer.close(index)
+						location.reload()
+					}
+				})
+			})
+		}
+
+		function edit(id) {
+			let title = "修改"
+			let content = `{:cmf_plugin_url('Shop://admin_classify/edit')}?id=${id}`
+			iframe(title, content, function(index, layero) {
+				let form = layer.getChildFrame("form", index)
+				let iframeWin = window[layero.find('iframe')[0]['name']]
+				let params = {
+					submit: true,
+					params: {
+						name: form.find("[name='name']").val(),
+						classify_id: form.find("[name='classify_id']").val()
+					}
+				}
+				if (isEmptyData(params.params.name)) {
+					message("分类名称为空", 2)
+					return false
+				}
+				layer.load(2)
+				$.post(content, params, function(data) {
+					if (data == true) {
+						layer.closeAll("loading")
+						layer.close(index)
+						location.reload()
+					}
+				})
+			})
+		}
+
+		/* 导航激活 */
+		$(".nav li").removeClass("active")
+		$(".nav li").eq(1).addClass("active")
+	</script>
+</block>
