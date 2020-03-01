@@ -101,3 +101,10 @@ function deleteAll(url, message) {
 		})
 	}
 }
+
+function laydate(options) {
+	layui.use(["laydate"], function() {
+		let laydate = layui.laydate
+		laydate.render(options)
+	})
+}

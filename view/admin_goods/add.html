@@ -1,0 +1,174 @@
+<extend name="common/iframe" />
+
+<!-- 区块-标题 -->
+<block name="title">
+
+</block>
+
+<!-- 区块-样式 -->
+<block name="style">
+
+</block>
+
+<!-- 区块-内容 -->
+<block name="content">
+	<form action="" class="layui-form layui-form-pane">
+		<div class="layui-form-item layui-form-text">
+			<label for="" class="layui-form-label">商品首图</label>
+			<div class="layui-input-block">
+				<div class="image-list">
+					<div class="image-upload" id="thumb-upload">
+						<span class="layui-icon layui-icon-addition"></span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="layui-form-item layui-form-text">
+			<label for="" class="layui-form-label">商品名称</label>
+			<div class="layui-input-block">
+				<input type="text" class="layui-input" name="title">
+			</div>
+		</div>
+		<div class="layui-form-item layui-form-text">
+			<label for="" class="layui-form-label">商品简介</label>
+			<div class="layui-input-block">
+				<textarea class="layui-textarea" rows="" name="description"></textarea>
+			</div>
+		</div>
+		<div class="layui-form-item layui-form-text">
+			<label for="" class="layui-form-label">商品内容</label>
+			<div class="layui-input-block">
+				<script id="content" type="text/plain"></script>
+				<script type="text/javascript">
+					let content = UE.getEditor("content", {
+						initialFrameHeight: 400
+					})
+				</script>
+			</div>
+		</div>
+		<div class="layui-form-item layui-form-text">
+			<label for="" class="layui-form-label">商品图组</label>
+			<div class="layui-input-block">
+				<div class="image-list">
+					<div class="image-upload" id="thumbs-upload">
+						<span class="layui-icon layui-icon-addition"></span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="layui-form-item layui-form-text">
+			<label for="" class="layui-form-label">商品现价</label>
+			<div class="layui-input-block">
+				<input type="number" class="layui-input" name="cost">
+			</div>
+		</div>
+		<div class="layui-form-item layui-form-text">
+			<label for="" class="layui-form-label">商品原价</label>
+			<div class="layui-input-block">
+				<input type="number" class="layui-input" name="cost_origin">
+			</div>
+		</div>
+		<div class="layui-form-item layui-form-text">
+			<label for="" class="layui-form-label">商品库存</label>
+			<div class="layui-input-block">
+				<input type="number" class="layui-input" name="stock">
+			</div>
+		</div>
+		<div class="layui-form-item layui-form-text">
+			<label for="" class="layui-form-label">所属分类</label>
+			<div class="layui-input-block">
+				<select name="classify_id">
+					<script type="text/javascript">
+						/* 初始化分类 */
+						let classifys = {$classifys | json_encode};
+
+						function initClassifys(datas, text) {
+							$.each(datas, function(index, data) {
+								text += `<option value="${data.id}">${data.prefix}${data.name}</option>`
+								if (data.hasClassifys) {
+									text = initClassifys(data.classifys, text)
+								}
+							})
+							return text
+						}
+
+						$("[name='classify_id']").html(initClassifys(classifys, ``))
+					</script>
+				</select>
+			</div>
+		</div>
+	</form>
+</block>
+
+<!-- 区块-脚本 -->
+<block name="script">
+	<script type="text/javascript">
+		layui.use(["form"], function() {
+			let form = layui.form
+		})
+
+		/* 上传组件初始化 */
+		layui.use(["layer", "upload"], function() {
+			let layer = layui.layer
+			let upload = layui.upload
+			let url = `{:cmf_plugin_url('Shop://admin_goods/upload')}`
+			upload.render({
+				elem: "#thumb-upload",
+				url: url,
+				accept: "images",
+				acceptMime: "image/*",
+				size: 2 * 1024,
+				done: function(data) {
+					if (!isEmptyElem($("#thumb-upload").siblings(".image"))) {
+						$("#thumb-upload").siblings(".image").remove()
+					}
+					$("#thumb-upload").parent().append(
+						`
+					<div class="image">
+						<img src="${data.fullName}">
+						<span class="layui-icon layui-icon-close" onclick="removeImg(this)"></span>
+						<input type="hidden" name="thumb" value="${data.fullName}">
+					</div>
+					`
+					)
+					layer.closeAll("loading")
+				},
+				before: function() {
+					layer.load(1)
+				}
+			})
+			upload.render({
+				elem: "#thumbs-upload",
+				url: url,
+				accept: "images",
+				acceptMime: "image/*",
+				size: 2 * 1024,
+				done: function(data) {
+					$("#thumbs-upload").parent().append(
+						`
+					<div class="image">
+						<img src="${data.fullName}">
+						<span class="layui-icon layui-icon-close" onclick="removeImg(this)"></span>
+						<input type="hidden" name="thumbs" value="${data.fullName}">
+					</div>
+					`
+					)
+					layer.closeAll("loading")
+				},
+				before: function() {
+					layer.load(1)
+				}
+			})
+		})
+
+		/* 删除图片 */
+		function removeImg(_this) {
+			$(_this).parent().remove()
+		}
+
+		/* 获取商品内容 */
+		function getContent() {
+			return UE.getEditor("content").getContent()
+		}
+	</script>
+</block>

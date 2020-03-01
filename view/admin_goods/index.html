@@ -1,0 +1,267 @@
+<extend name="common/frame" />
+
+<!-- 区块-标题 -->
+<block name="title">
+	商品管理
+</block>
+
+<!-- 区块-样式 -->
+<block name="style">
+
+</block>
+
+<!-- 区块-内容 -->
+<block name="content">
+	<div class="well">
+		<form action="" class="form-inline">
+			<div class="input-group">
+				<span class="input-group-addon">商品名称</span>
+				<input type="text" class="form-control" name="search[title]">
+			</div>
+			<div class="input-group">
+				<span class="input-group-addon">添加时间</span>
+				<input type="text" class="form-control" name="search[time_start]">
+				<span class="input-group-addon">-</span>
+				<input type="text" class="form-control" name="search[time_end]">
+			</div>
+			<button class="btn btn-primary" type="submit">搜索</button>
+			<button class="btn btn-default" type="reset">重置</button>
+		</form>
+	</div>
+	<table class="table table-bordered table-hover">
+		<colgroup>
+			<col width="7.5%">
+			<col width="7.5%">
+			<col width="7.5%">
+			<col width="12.5%">
+			<col width="12.5%">
+			<col width="12.5%">
+			<col width="10%">
+			<col width="10%">
+			<col width="20%">
+		</colgroup>
+		<thead>
+			<th><input type="checkbox" onclick="selectAll(this)"></th>
+			<th>商品排序</th>
+			<th>商品编号</th>
+			<th>商品首图</th>
+			<th>商品名称</th>
+			<th>添加时间</th>
+			<th>所属分类</th>
+			<th>商品状态</th>
+			<th><button class="btn btn-success" type="button" onclick="add()">添加</button></th>
+		</thead>
+		<tbody>
+			<volist name="datas" id="data">
+				<tr>
+					<td><input type="checkbox" name="id" value="{$data.id}"></td>
+					<td><input type="text" class="form-control text-center" value="{$data.sort}" onchange="executeSort(this, {$data.id}, '{:cmf_plugin_url('Shop://admin_goods/executeSort')}')"></td>
+					<td>{$data.id}</td>
+					<td>
+						<div class="image">
+							<img src="{$data.thumb}">
+						</div>
+					</td>
+					<td>{$data.title}</td>
+					<td>{$data.create_time}</td>
+					<td>{$data.classify_name}</td>
+					<td>
+						<switch name="$data.status">
+							<case value="1">
+								<button class="btn btn-warning" type="button" onclick="executeStatus(2, {$data.id}, '{:cmf_plugin_url('Shop://admin_goods/executeStatus')}', '确认禁用?')">禁用</button>
+							</case>
+							<case value="2">
+								<button class="btn btn-success" type="button" onclick="executeStatus(1, {$data.id}, '{:cmf_plugin_url('Shop://admin_goods/executeStatus')}', '确认启用?')">启用</button>
+							</case>
+						</switch>
+					</td>
+					<td>
+						<button class="btn btn-default" type="button" onclick="specs({$data.id})">管理规格</button>
+						<button class="btn btn-primary" type="button" onclick="edit({$data.id})">修改</button>
+						<button class="btn btn-danger" type="button" onclick="executeDestroy({$data.id}, '{:cmf_plugin_url('Shop://admin_goods/executeDestroy')}', '确认删除?')">删除</button>
+					</td>
+				</tr>
+			</volist>
+		</tbody>
+	</table>
+	<div class="row">
+		<div class="col-md-2">
+			<button class="btn btn-danger" type="button" onclick="deleteAll('{:cmf_plugin_url('Shop://admin_goods/deleteAll')}', '确认删除选中?')">删除选中</button>
+		</div>
+		<div class="col-md-10">
+			<div class="text-right">{$pages}</div>
+		</div>
+	</div>
+	<!-- 初始化数据 -->
+	<if condition="!empty($search)">
+		<script type="text/javascript">
+			$("[name='search[title]']").val("{$search['title']}")
+			$("[name='search[time_start]']").val("{$search['time_start']}")
+			$("[name='search[time_end]']").val("{$search['time_end']}")
+		</script>
+	</if>
+</block>
+
+<!-- 区块-脚本 -->
+<block name="script">
+	<script type="text/javascript">
+		/* 日期组件初始化 */
+		laydate({
+			elem: "[name='search[time_start]']",
+			type: "datetime"
+		})
+
+		laydate({
+			elem: "[name='search[time_end]']",
+			type: "datetime"
+		})
+
+		function add() {
+			let title = "添加"
+			let content = `{:cmf_plugin_url('Shop://admin_goods/add')}`
+			iframe(title, content, function(index, layero) {
+				let form = layer.getChildFrame("form", index)
+				let iframeWin = window[layero.find('iframe')[0]['name']]
+				let params = {
+					submit: true,
+					params: {
+						thumb: form.find("[name='thumb']").val(),
+						title: form.find("[name='title']").val(),
+						description: form.find("[name='description']").val(),
+						content: iframeWin.getContent(),
+						cost: form.find("[name='cost']").val(),
+						cost_origin: form.find("[name='cost_origin']").val(),
+						stock: form.find("[name='stock']").val(),
+						classify_id: form.find("[name='classify_id']").val(),
+						thumbs: $.map(form.find("[name='thumbs']"), function(value, index) {
+							return $(value).val()
+						})
+					}
+				}
+				console.log(params)
+				if (isEmptyData(params.params.thumb)) {
+					message("商品首图为空", 2)
+					return false
+				}
+				if (isEmptyData(params.params.title)) {
+					message("商品名称为空", 2)
+					return false
+				}
+				if (isEmptyData(params.params.description)) {
+					message("商品简介为空", 2)
+					return false
+				}
+				if (isEmptyData(params.params.content)) {
+					message("商品内容为空", 2)
+					return false
+				}
+				if (isEmptyData(params.params.thumbs)) {
+					message("商品图组为空", 2)
+					return false
+				}
+				if (isEmptyData(params.params.cost)) {
+					message("商品现价为空", 2)
+					return false
+				}
+				if (isEmptyData(params.params.cost_origin)) {
+					message("商品原价为空", 2)
+					return false
+				}
+				if (isEmptyData(params.params.stock)) {
+					message("商品库存为空", 2)
+					return false
+				}
+				if (isEmptyData(params.params.classify_id)) {
+					message("所属分类为空", 2)
+					return false
+				}
+				layer.load(2)
+				$.post(content, params, function(data) {
+					if (data == true) {
+						layer.closeAll("loading")
+						layer.close(index)
+						location.reload()
+					}
+				})
+			})
+		}
+
+		function edit(id) {
+			let title = "修改"
+			let content = `{:cmf_plugin_url('Shop://admin_goods/edit')}?id=${id}`
+			iframe(title, content, function(index, layero) {
+				let form = layer.getChildFrame("form", index)
+				let iframeWin = window[layero.find('iframe')[0]['name']]
+				let params = {
+					submit: true,
+					params: {
+						thumb: form.find("[name='thumb']").val(),
+						title: form.find("[name='title']").val(),
+						description: form.find("[name='description']").val(),
+						content: iframeWin.getContent(),
+						cost: form.find("[name='cost']").val(),
+						cost_origin: form.find("[name='cost_origin']").val(),
+						stock: form.find("[name='stock']").val(),
+						classify_id: form.find("[name='classify_id']").val(),
+						thumbs: $.map(form.find("[name='thumbs']"), function(value, index) {
+							return $(value).val()
+						})
+					}
+				}
+				console.log(params)
+				if (isEmptyData(params.params.thumb)) {
+					message("商品首图为空", 2)
+					return false
+				}
+				if (isEmptyData(params.params.title)) {
+					message("商品名称为空", 2)
+					return false
+				}
+				if (isEmptyData(params.params.description)) {
+					message("商品简介为空", 2)
+					return false
+				}
+				if (isEmptyData(params.params.content)) {
+					message("商品内容为空", 2)
+					return false
+				}
+				if (isEmptyData(params.params.thumbs)) {
+					message("商品图组为空", 2)
+					return false
+				}
+				if (isEmptyData(params.params.cost)) {
+					message("商品现价为空", 2)
+					return false
+				}
+				if (isEmptyData(params.params.cost_origin)) {
+					message("商品原价为空", 2)
+					return false
+				}
+				if (isEmptyData(params.params.stock)) {
+					message("商品库存为空", 2)
+					return false
+				}
+				if (isEmptyData(params.params.classify_id)) {
+					message("所属分类为空", 2)
+					return false
+				}
+				layer.load(2)
+				$.post(content, params, function(data) {
+					if (data == true) {
+						layer.closeAll("loading")
+						layer.close(index)
+						location.reload()
+					}
+				})
+			})
+		}
+
+		function specs(id) {
+			location = `{:cmf_plugin_url('Shop://admin_specs/index')}?goods_id=${id}`
+		}
+
+		/* 导航激活 */
+		$(".nav li").removeClass("active")
+		$(".nav li").eq(0).addClass("active")
+	</script>
+</block>

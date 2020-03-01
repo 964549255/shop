@@ -28,3 +28,56 @@
 .table tbody tr td.text-left {
 	text-align: left;
 }
+
+.image-upload {
+	width: 100px;
+	height: 100px;
+	border: 2px solid #EEEEEE;
+	display: inline-block;
+	position: relative;
+	cursor: pointer;
+}
+
+.image-upload span {
+	color: #EEEEEE;
+	font-size: 50px;
+	line-height: 50px;
+	position: absolute;
+	margin-left: -25px;
+	margin-top: -25px;
+	left: 50%;
+	top: 50%;
+}
+
+.image-list {
+	white-space: nowrap;
+	overflow-x: auto;
+}
+
+.image {
+	height: 100px;
+	position: relative;
+	display: inline-block;
+	vertical-align: top;
+}
+
+.image img {
+	height: 100%;
+}
+
+.image span {
+	color: #FF0000;
+	font-size: 20px;
+	position: absolute;
+	right: 5px;
+	top: 5px;
+	cursor: pointer;
+}
+
+.pagination {
+	margin: 0;
+}
+
+.form-inline .input-group {
+	margin-right: 10px;
+}
