@@ -177,7 +177,7 @@
 				}
 				layer.load(2)
 				$.post(content, params, function(data) {
-					if (data == true) {
+					if (data === true) {
 						layer.closeAll("loading")
 						layer.close(index)
 						location.reload()
@@ -247,7 +247,7 @@
 				}
 				layer.load(2)
 				$.post(content, params, function(data) {
-					if (data == true) {
+					if (data === true) {
 						layer.closeAll("loading")
 						layer.close(index)
 						location.reload()

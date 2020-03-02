@@ -1,6 +1,6 @@
 /* 元素为空 */
 function isEmptyElem(data) {
-	return data.length == 0
+	return data.length === 0
 }
 
 /* 数据为空 */
@@ -51,7 +51,7 @@ function executeSort(_this, id, url) {
 		sort: $(_this).val()
 	}
 	$.get(url, params, function(data) {
-		if (data == true) {
+		if (data === true) {
 			location.reload()
 		}
 	})
@@ -65,7 +65,7 @@ function executeStatus(status, id, url, message) {
 			status: status
 		}
 		$.get(url, params, function(data) {
-			if (data == true) {
+			if (data === true) {
 				location.reload()
 			}
 		})
@@ -79,7 +79,7 @@ function executeDestroy(id, url, message) {
 			id: id
 		}
 		$.get(url, params, function(data) {
-			if (data == true) {
+			if (data === true) {
 				location.reload()
 			}
 		})
@@ -95,7 +95,7 @@ function deleteAll(url, message) {
 			})
 		}
 		$.get(url, params, function(data) {
-			if (data == true) {
+			if (data === true) {
 				location.reload()
 			}
 		})
