@@ -81,3 +81,8 @@
 .form-inline .input-group {
 	margin-right: 10px;
 }
+
+.input-attr span {
+	color: #FF0000;
+	cursor: pointer;
+}

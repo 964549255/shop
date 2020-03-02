@@ -1,0 +1,67 @@
+<extend name="common/iframe" />
+
+<!-- 区块-标题 -->
+<block name="title">
+
+</block>
+
+<!-- 区块-样式 -->
+<block name="style">
+
+</block>
+
+<!-- 区块-内容 -->
+<block name="content">
+	<form action="" class="layui-form layui-form-pane">
+		<div class="layui-form-item layui-form-text">
+			<label for="" class="layui-form-label">规格名称</label>
+			<div class="layui-input-block">
+				<input type="text" class="layui-input" name="name">
+			</div>
+		</div>
+		<div class="layui-form-item layui-form-text">
+			<label for="" class="layui-form-label">规格属性</label>
+			<div class="layui-input-block">
+				<div class="layui-row layui-col-space5">
+					<div class="layui-col-sm6">
+						<div class="input-group input-attr">
+							<input type="text" class="form-control" name="attr">
+							<span class="input-group-addon" onclick="removeInput(this)"><i class="layui-icon layui-icon-close-fill"></i></span>
+						</div>
+					</div>
+					<div class="layui-col-sm6">
+						<button class="btn btn-default btn-block" type="button" onclick="addInput(this)"><span class="layui-icon layui-icon-addition"></span></button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
+</block>
+
+<!-- 区块-脚本 -->
+<block name="script">
+	<script type="text/javascript">
+		/* 添加输入框 */
+		function addInput(_this) {
+			$(_this).parent().before(
+				`
+			<div class="layui-col-sm6">
+				<div class="input-group input-attr">
+					<input type="text" class="form-control" name="attr">
+					<span class="input-group-addon" onclick="removeInput(this)"><i class="layui-icon layui-icon-close-fill"></i></span>
+				</div>
+			</div>
+			`
+			)
+		}
+
+		/* 删除输入框 */
+		function removeInput(_this) {
+			$(_this).parent().parent().remove()
+		}
+
+		layui.use(["form"], function() {
+			let form = layui.form
+		})
+	</script>
+</block>
